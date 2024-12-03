@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant Image Upload & Resize</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <style>
+        * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #d3cce3, #e9e4f0);
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #4e4e4e;
+    padding: 0 20px;
+    overflow: hidden;
+}
+
+.container {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 60px 40px;
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1 {
+    font-size: 30px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.upload-btn-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.upload-button {
+    background: linear-gradient(145deg, #f53844, #ff8a00);
+    border: none;
+    color: white;
+    padding: 16px 35px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    letter-spacing: 1px;
+}
+
+.upload-button:hover {
+    background: linear-gradient(145deg, #ff8a00, #f53844);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.upload-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.image-preview {
+    margin-top: 30px;
+    max-width: 400px;
+    max-height: 400px;
+    border-radius: 15px;
+    border: 3px solid #f0f0f0;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    position: relative; /* Add position relative for proper absolute positioning of the button */
+    margin-top: 30px;
+}
+
+.message {
+    font-size: 18px;
+    color: #777;
+    margin-top: 20px;
+    font-weight: 400;
+}
+
+.classification-btn,
+.mass-btn {
+    background: linear-gradient(145deg, #3faffa, #0e6b92);
+    border: double;
+    border-width: 5px;
+    color: white;
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    display: none; /* Hidden initially */
+}
+
+.classification-btn:hover,
+.mass-btn:hover {
+    background: linear-gradient(145deg, #0e6b92, #3faffa);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.classification-btn:active,
+.mass-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.detector-btn {
+    width: 50px;
+    height: 50px;
+    background-color: #3faffa;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: absolute; /* Changed to absolute */
+    bottom: 170px; /* Positioned at the bottom */
+    left: 30px; /* Positioned to the left */
+    display: none; /* Hidden initially */
+}
+
+.detector-btn:hover {
+    background-color: #0e6b92;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.detector-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+}
+
+.modal button {
+    background: linear-gradient(145deg, #3faffa, #0e6b92);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal button:hover {
+    background: linear-gradient(145deg, #0e6b92, #3faffa);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal button:active {
+    transform: translateY(2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.detector-btn {
+    display: inline-block;
+    margin-bottom: 10px; /* Add spacing below Detector button */
+}
+
+.circular-btn {
+    display: none; /* Start hidden */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #6200ea; /* Elegant purple */
+    border: none;
+    color: white;
+    font-size: 30px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    position: absolute; /* Position relative to the container */
+    top: 650px; /* Position just below the Detector button */
+    left: 30px; /* Align with the Detector button */
+}
+
+.circular-btn:hover {
+    background-color: #3700b3; /* Darker purple on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+.circular-btn:active {
+    background-color: #1c0036; /* Even darker shade on active press */
+    transform: scale(0.95); /* Shrink slightly on press */
+}
+/* Styling for labeled image containers */
+.labeled-image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Styling for the surface area label */
+.image-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background-color: #f8f8f8;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    width: fit-content;
+}
+
+    </style>
+<body>
+    <div class="container">
+        <h1>Upload and Resize Your Image</h1>
+        <div class="upload-btn-wrapper">
+            <label for="file-upload" class="upload-button">Choose an Image</label>
+            <input type="file" id="file-upload" accept="image/*" onchange="previewAndResizeImage()">
+        </div>
+    
+        <div id="image-container" class="image-container"></div>
+        <p id="message" class="message">Select an image to preview it here.</p>
+    
+        <!-- Classification Button -->
+        <button id="classificationBtn" class="classification-btn" onclick="classificationAction()">Classi.mass</button>
+        
+        <!-- Mass Button -->
+        <button id="massBtn" class="mass-btn" onclick="massAction()">calssi.mass.de</button>
+    
+      <!-- Detector Button -->
+    <button id="detectorBtn" class="detector-btn" style="display: none;" onclick="detectorAction()">
+        <span class="material-icons"><i class="material-icons">margin</i></span>
+    </button>
+    
+            <!-- Circular Button -->
+    <button id="circularBtn" class="circular-btn" onclick="circularButtonAction()">
+        <span class="material-icons"><i class="matrial-icons">calculate</i></span>
+    
+    
+        </button>
+    </div>
+    
+    <!-- Modal and Backdrop -->
+    <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+    <div class="modal" id="massModal">
+        <button onclick="calcDetAction()">calc.det</button>
+        <button onclick="massDetAction()">mass.det</button>
+    </div>
+    
+    <script>
+        let originalImage = null;
+        let resizedImageUrl = null;
+    
+        function previewAndResizeImage() {
+        const file = document.getElementById('file-upload').files[0];
+        const reader = new FileReader();
+    
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+    
+                const targetWidth = 400;
+                const targetHeight = 400;
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+    
+                ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+    
+                resizedImageUrl = canvas.toDataURL('image/png');
+                originalImage = img;
+    
+                const imageContainer = document.getElementById('image-container');
+                imageContainer.innerHTML = `<img src="${resizedImageUrl}" class="image-preview">`;
+    
+                // Show buttons after the image is uploaded
+                document.getElementById('classificationBtn').style.display = 'inline-block';
+                document.getElementById('massBtn').style.display = 'inline-block';
+                document.getElementById('detectorBtn').style.display = 'inline-block'; // Show the detector button
+                document.getElementById('circularBtn').style.display = 'flex'; // Correct display for circular button
+    
+                document.getElementById('message').textContent = 'Your image is resized to 400x400 pixels!';
+            };
+    
+            img.src = e.target.result;
+        };
+    
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    
+    
+        function classificationAction() {
+        if (!originalImage) {
+            alert("Please upload an image first.");
+            return;
+        }
+    
+        // Brightness thresholds
+        const brightnessThresholds = [100, 120, 140, 164, 184, 204, 224];
+    
+        // Container to display the images
+        const imageContainer = document.getElementById('image-container');
+        imageContainer.innerHTML = ''; // Clear existing images
+    
+        brightnessThresholds.forEach(threshold => {
+            // Create a canvas for each threshold
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+    
+            // Set canvas dimensions to match the resized image
+            canvas.width = originalImage.width;
+            canvas.height = originalImage.height;
+    
+            // Draw the original image onto the canvas
+            ctx.drawImage(originalImage, 0, 0);
+    
+            // Get the image data from the canvas
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+    
+            // Iterate over each pixel
+            for (let i = 0; i < data.length; i += 4) {
+                // Calculate brightness: (R + G + B) / 3
+                const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    
+                // If brightness exceeds the threshold, apply a white mask
+                if (brightness >= threshold) {
+                    data[i] = 255;     // Red
+                    data[i + 1] = 255; // Green
+                    data[i + 2] = 255; // Blue
+                }
+            }
+    
+            // Update the canvas with the modified image data
+            ctx.putImageData(imageData, 0, 0);
+    
+            // Create an image element for display
+            const imgElement = document.createElement('img');
+            imgElement.src = canvas.toDataURL();
+            imgElement.className = 'image-preview';
+            imgElement.alt = `Brightness Mask ${threshold}`;
+    
+            // Add the image to the container
+            imageContainer.appendChild(imgElement);
+        });
+    
+        // Update the message
+        document.getElementById('message').textContent =
+            'Classification masks applied with thresholds: ' + brightnessThresholds.join(', ') + '.';
+    }
+    
+    
+    function massAction() {
+    if (!originalImage) {
+        alert("Please upload an image and apply classification first.");
+        return;
+    }
+
+    const imagePreviews = document.querySelectorAll('.image-preview');
+    if (imagePreviews.length === 0) {
+        alert("No classification masks found. Please run the classification first.");
+        return;
+    }
+
+    const dpi = 96; // Dots per inch for the images
+    const pixelsPerInch = dpi ** 2;
+    const cmPerInch = 2.54 ** 2; // Convert square inches to square centimeters
+
+    let surfaces = []; // Store calculated surfaces for all images
+    let processedCount = 0; // Track how many images are processed
+
+    imagePreviews.forEach((imgElement, index) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = imgElement.src;
+
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Count white pixels in the image
+            let whitePixelCount = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i] === 255 && data[i + 1] === 255 && data[i + 2] === 255) {
+                    whitePixelCount++;
+                }
+            }
+
+            // Calculate surface area in cm²
+            const areaInCm2 = (whitePixelCount / pixelsPerInch) * cmPerInch;
+            surfaces[index] = areaInCm2;
+            processedCount++;
+
+            // If all images are processed, evaluate the conditions
+            if (processedCount === imagePreviews.length) {
+                evaluateMassConditions(surfaces);
+            }
+        };
+    });
+}
+
+function evaluateMassConditions(surfaces) {
+    const calcDetBtn = document.querySelector('button[onclick="calcDetAction()"]');
+    const massDetBtn = document.querySelector('button[onclick="massDetAction()"]');
+
+    // Find the first image with surface < 1 cm²
+    const firstLessThan1 = surfaces.findIndex(surface => surface < 1);
+
+    if (firstLessThan1 !== -1 && firstLessThan1 > 0) {
+        const previousSurface = surfaces[firstLessThan1 - 1];
+
+        if (previousSurface < 10) {
+            massDetBtn.style.display = 'none'; // Turn off Mass.det button
+            calcDetBtn.style.display = 'inline-block'; // Ensure Calc.det is visible
+            alert("It seems the patient has a kind of calcification in its mammography.");
+        } else if (previousSurface >= 10) {
+            calcDetBtn.style.display = 'none'; // Turn off Calc.det button
+            massDetBtn.style.display = 'inline-block'; // Ensure Mass.det is visible
+            alert("It seems the patient has a kind of mass in its mammography.");
+        }
+    } else if (surfaces.length >= 2) {
+        // Calculate average of the last two surfaces if no image < 1 cm² is found
+        const lastTwoSurfaces = surfaces.slice(-2);
+        const averageSurface = lastTwoSurfaces.reduce((a, b) => a + b, 0) / 2;
+
+        if (averageSurface < 10) {
+            massDetBtn.style.display = 'none'; // Turn off Mass.det button
+            calcDetBtn.style.display = 'inline-block'; // Ensure Calc.det is visible
+            alert("It seems the patient has a kind of calcification in its mammography.");
+        } else {
+            calcDetBtn.style.display = 'none'; // Turn off Calc.det button
+            massDetBtn.style.display = 'inline-block'; // Ensure Mass.det is visible
+            alert("It seems the patient has a kind of mass in its mammography.");
+        }
+    } else {
+        alert("Not enough images to calculate the average of the last two surfaces.");
+    }
+}
+
+
+    
+    
+        function closeModal() {
+            const modal = document.getElementById('massModal');
+            const backdrop = document.getElementById('modalBackdrop');
+            modal.style.display = 'none';
+            backdrop.style.display = 'none';
+        }
+    
+        function calcDetAction() {
+            alert("calc.det action triggered!");
+            closeModal();
+        }
+    
+        function massDetAction() {
+            alert("mass.det action triggered!");
+            closeModal();
+        }
+    
+        
+        
+        function detectorAction() {
+        if (!originalImage) {
+            alert("Please upload an image and apply classification first.");
+            return;
+        }
+    
+        // Select all image-preview elements created during classification
+        const imagePreviews = document.querySelectorAll('.image-preview');
+    
+        if (imagePreviews.length === 0) {
+            alert("No classification masks found. Please run the classification first.");
+            return;
+        }
+    
+        // Process each classified image
+        imagePreviews.forEach((imgElement) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+    
+            // Set canvas dimensions to match the image
+            const img = new Image();
+            img.src = imgElement.src;
+    
+            img.onload = function () {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+    
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+    
+                // Clone the pixel data for processing
+                const newImageData = ctx.createImageData(canvas.width, canvas.height);
+                const newData = newImageData.data;
+    
+                // Loop through each pixel to detect white regions and their margins
+                for (let y = 0; y < canvas.height; y++) {
+                    for (let x = 0; x < canvas.width; x++) {
+                        const idx = (y * canvas.width + x) * 4;
+    
+                        const isWhite =
+                            data[idx] === 255 &&
+                            data[idx + 1] === 255 &&
+                            data[idx + 2] === 255;
+    
+                        if (isWhite) {
+                            // Check neighboring pixels to see if this pixel is at the boundary
+                            const neighbors = [
+                                [-1, 0], // Left
+                                [1, 0],  // Right
+                                [0, -1], // Top
+                                [0, 1],  // Bottom
+                            ];
+    
+                            let isBoundary = false;
+                            for (const [dx, dy] of neighbors) {
+                                const nx = x + dx;
+                                const ny = y + dy;
+    
+                                if (
+                                    nx >= 0 &&
+                                    nx < canvas.width &&
+                                    ny >= 0 &&
+                                    ny < canvas.height
+                                ) {
+                                    const neighborIdx = (ny * canvas.width + nx) * 4;
+                                    const neighborIsWhite =
+                                        data[neighborIdx] === 255 &&
+                                        data[neighborIdx + 1] === 255 &&
+                                        data[neighborIdx + 2] === 255;
+    
+                                    if (!neighborIsWhite) {
+                                        isBoundary = true;
+                                        break;
+                                    }
+                                }
+                            }
+    
+                            if (isBoundary) {
+                                newData[idx] = 255;     // Red
+                                newData[idx + 1] = 0;   // Green
+                                newData[idx + 2] = 0;   // Blue
+                                newData[idx + 3] = 255; // Alpha
+                            } else {
+                                newData[idx] = data[idx];
+                                newData[idx + 1] = data[idx + 1];
+                                newData[idx + 2] = data[idx + 2];
+                                newData[idx + 3] = data[idx + 3];
+                            }
+                        } else {
+                            newData[idx] = data[idx];
+                            newData[idx + 1] = data[idx + 1];
+                            newData[idx + 2] = data[idx + 2];
+                            newData[idx + 3] = data[idx + 3];
+                        }
+                    }
+                }
+    
+                // Update the canvas with the new image data
+                ctx.putImageData(newImageData, 0, 0);
+    
+                // Update the corresponding image element's src
+                imgElement.src = canvas.toDataURL();
+            };
+        });
+    
+        // Update the message
+        document.getElementById('message').textContent =
+            'Red margins detected and displayed on all classified masks.';
+    }
+    function circularButtonAction() {
+        if (!originalImage) {
+            alert("Please upload an image and apply classification first.");
+            return;
+        }
+    
+        const imagePreviews = document.querySelectorAll('.image-preview');
+        if (imagePreviews.length === 0) {
+            alert("No classification masks found. Please run the classification first.");
+            return;
+        }
+    
+        const dpi = 96; // Dots per inch for the images
+    
+        // Clear the image container to re-render images with labels
+        const imageContainer = document.getElementById('image-container');
+        const labeledImages = [];
+    
+        imagePreviews.forEach((imgElement, index) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = imgElement.src;
+    
+            img.onload = function () {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+    
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+    
+                // Count white pixels in the image
+                let whitePixelCount = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] === 255 && data[i + 1] === 255 && data[i + 2] === 255) {
+                        whitePixelCount++;
+                    }
+                }
+    
+                // Calculate the surface area in cm²
+                const pixelsPerInch = dpi ** 2;
+                const cmPerInch = 2.54 ** 2; // Convert square inches to square centimeters
+                const areaInCm2 = (whitePixelCount / pixelsPerInch) * cmPerInch;
+    
+                // Create a container for the labeled image
+                const labeledContainer = document.createElement('div');
+                labeledContainer.className = 'labeled-image-container';
+    
+                // Create and style the label
+                const label = document.createElement('div');
+                label.className = 'image-label';
+                label.textContent = `Surface Area: ${areaInCm2.toFixed(2)} cm²`;
+    
+                // Add label and image to the container
+                labeledContainer.appendChild(label);
+                labeledContainer.appendChild(imgElement.cloneNode(true)); // Clone the existing image preview
+                labeledImages.push(labeledContainer);
+    
+                // Once all images are processed, render them
+                if (labeledImages.length === imagePreviews.length) {
+                    imageContainer.innerHTML = ''; // Clear existing content
+                    labeledImages.forEach((container) => {
+                        imageContainer.appendChild(container);
+                    });
+                }
+            };
+        });
+    }
+    </script>
+    </body>
+    </html>
+    
